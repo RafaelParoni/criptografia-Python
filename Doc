@@ -1,0 +1,105 @@
+----------def gerar_chaves(): - 
+
+1 Definição da Função: 
+
+ A função gerar_chaves() é definida sem parâmetros e é responsável por criar um par de chaves RSA (uma chave privada e uma chave pública).
+2 Gerar a Chave Privada:
+
+ A linha private_key = rsa.generate_private_key(...) usa a função generate_private_key da biblioteca cryptography para gerar uma chave privada.
+- Parâmetros:
+ public_exponent=65537 Este é um valor comum usado em criptografia RSA. Ele é um número primo pequeno que ajuda na eficiência da operação. O valor 65537 é escolhido por ser suficientemente grande para garantir segurança, mas pequeno o suficiente para ser computacionalmente eficiente.
+ key_size=2048 Define o tamanho da chave em bits. Uma chave de 2048 bits é considerada segura para a maioria das aplicações atualmente. Um tamanho maior (como 4096 bits) oferece mais segurança, mas também exige mais recursos computacionais.
+ backend=default_backend() Especifica o backend que será utilizado para gerar a chave. O default_backend() geralmente fornece a implementação mais adequada disponível no sistema.
+3 Gerar a Chave Pública
+
+ A linha public_key = private_key.public_key() usa o método public_key() da chave privada para extrair a chave pública correspondente. A chave pública é derivada da chave privada e pode ser usada para criptografar dados que somente a chave privada pode descriptografar.
+4 Retorno das Chaves:
+
+ A função retorna uma tupla contendo a chave privada e a chave pública (return private_key, public_key). Isso permite que você utilize ambas as chaves em outras partes do seu programa para criptografia e descriptografia.
+
+ 
+--------- def criptografar_mensagem(public_key, mensagem) -
+
+1Definição da Função:
+
+  A função criptografar_mensagem() recebe dois parâmetros public_key, que é a chave pública utilizada para criptografar a mensagem, e mensagem, que é a string que queremos criptografar.
+2 Codificação da Mensagem:
+
+  A linha mensagem.encode() converte a string da mensagem para um formato de bytes. Isso é necessário porque a função de criptografia trabalha com dados em bytes, e não com strings. A codificação padrão usada é UTF-8.
+3 Criptografar a Mensagem:
+
+  A linha ciphertext = public_key.encrypt(...) utiliza o método encrypt() da chave pública para criptografar a mensagem em bytes.
+  - Parâmetros:
+    O primeiro argumento é a mensagem em bytes que estamos criptografando.
+    O segundo argumento é o padding (preenchimento) a ser usado. O preenchimento é uma técnica que adiciona dados à mensagem original para que tenha um tamanho adequado e para garantir a segurança na criptografia.
+4 Especificação do Padding:
+
+  padding.OAEP(...) especifica o tipo de preenchimento que será usado, que é o Optimal Asymmetric Encryption Padding (OAEP). Este é um método seguro de preenchimento para RSA que protege contra certos tipos de ataques.
+  Componentes do Padding
+  mgf=padding.MGF1(algorithm=hashes.SHA256()) Define a função de geração de máscara (Mask Generation Function) a ser usada. Aqui, MGF1 é utilizada com o algoritmo SHA-256, que é uma função de hash criptográfica. Essa máscara é aplicada durante o preenchimento para aumentar a segurança.
+  algorithm=hashes.SHA256() Especifica que o algoritmo de hash SHA-256 será utilizado para a criptografia.
+  label=None Este parâmetro é usado para informações adicionais no preenchimento, mas pode ser deixado como None se não for necessário.
+5 Retorno do Ciphertext:
+
+  A função retorna ciphertext, que é a mensagem criptografada em formato de bytes. Essa mensagem pode ser transmitida ou armazenada de forma segura, sabendo que somente quem possui a chave privada correspondente poderá descriptografá-la.
+
+----------- def descriptografar_mensagem(private_key, ciphertext) -
+
+1 Definição da Função:
+
+  A função descriptografar_mensagem() recebe dois parâmetros private_key, que é a chave privada usada para descriptografar a mensagem, e ciphertext, que é a mensagem criptografada que queremos recuperar.
+2 Descriptografar a Mensagem:
+
+  A linha decrypted_message = private_key.decrypt(...) utiliza o método decrypt() da chave privada para descriptografar a mensagem.
+  Parâmetros:
+    O primeiro argumento é ciphertext, que contém a mensagem criptografada que foi gerada anteriormente.
+    O segundo argumento é o método de padding, que deve ser o mesmo usado na criptografia para garantir que a descriptografia funcione corretamente.
+3 Especificação do Padding:
+
+  padding.OAEP(...) especifica que o preenchimento OAEP (Optimal Asymmetric Encryption Padding) será usado, assim como na criptografia. É essencial que o mesmo método de preenchimento seja utilizado, já que o processo de descriptografar precisa corresponder exatamente ao que foi feito durante a criptografia.
+  Componentes do Padding
+  mgf=padding.MGF1(algorithm=hashes.SHA256()) Define a função de geração de máscara a ser usada, que é a mesma que foi utilizada durante a criptografia.
+  algorithm=hashes.SHA256() Especifica o algoritmo de hash que também deve ser o mesmo que foi usado na criptografia.
+  label=None Esse parâmetro também é utilizado da mesma forma que na criptografia.
+4 Retorno da Mensagem Descriptografada:
+
+  Após a descriptografia, decrypted_message contém a mensagem original em formato de bytes.
+  A função retorna decrypted_message.decode(), que converte os bytes de volta para uma string usando a codificação padrão (UTF-8). Isso permite que a mensagem recuperada seja legível.
+
+--------------
+1 Definição da Função:
+
+  A função main() é o ponto de entrada do programa. Ela organiza o fluxo de execução das operações de geração de chaves, criptografia e descriptografia.
+2 Gerar Chaves:
+
+  private_key, public_key = gerar_chaves()
+  Chama a função gerar_chaves() para criar um par de chaves (privada e pública).
+  As chaves geradas são armazenadas nas variáveis private_key e public_key, que serão usadas posteriormente para criptografar e descriptografar a mensagem.
+3 Entrada do Usuário:
+
+  mensagem = input("Digeite uma menssagem a ser criptografada ")
+  Solicita que o usuário insira uma mensagem que deseja criptografar.
+  A mensagem é armazenada na variável mensagem.
+4 Criptografar a Mensagem:
+
+  ciphertext = criptografar_mensagem(public_key, mensagem)
+  Chama a função criptografar_mensagem(), passando a chave pública e a mensagem digitada pelo usuário.
+  A função retorna a mensagem criptografada, que é armazenada na variável ciphertext.
+5 Exibir Mensagem Criptografada:
+
+  print("Mensagem criptografada:", ciphertext)
+  Exibe a mensagem criptografada (em formato de bytes) no console.
+6 Descriptografar a Mensagem:
+
+  decrypted_message = descriptografar_mensagem(private_key, ciphertext)
+  Chama a função descriptografar_mensagem(), passando a chave privada e a mensagem criptografada.
+  A função retorna a mensagem original (descriptografada), que é armazenada na variável decrypted_message.
+7 Exibir Mensagem Descriptografada:
+
+  print("Mensagem descriptografada:", decrypted_message)
+  Exibe a mensagem recuperada (que foi originalmente digitada pelo usuário) no console.
+
+
+
+
+###  pip install Cryptography  ###
